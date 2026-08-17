@@ -1,0 +1,82 @@
+dataset:
+  name: SDFVD
+  root: deepfakez/SDFVD Small-scale Deepfake Forgery Video Dataset/SDFVD/SDFVD
+  real_dir: videos_real
+  fake_dir: videos_fake
+
+split:
+  train_ratio: 0.70
+  val_ratio: 0.15
+  test_ratio: 0.15
+  random_seed: 42
+
+video:
+  target_fps: 5
+  max_frames_per_video: 30
+  face_size: 128
+
+features:
+  hog:
+    enabled: true
+    orientations: 9
+    pixels_per_cell: [8, 8]
+    cells_per_block: [2, 2]
+  lbp:
+    enabled: true
+    radius: 3
+    n_points: 24
+    method: uniform
+    grid_h: 4
+    grid_w: 4
+  color_lighting:
+    enabled: true
+    color_spaces: [RGB, HSV, LAB]
+    stats: [mean, std]
+  frequency:
+    enabled: true
+    fft_features: [mean, std, energy, entropy, peak_freq]
+    dct_features: [mean, std, energy]
+  audio:
+    enabled: true
+    sample_rate: 16000
+    n_mfcc: 13
+  metadata:
+    enabled: true
+    extract: [fps, frame_count, width, height, duration, bitrate]
+
+preprocessing:
+  scaling: StandardScaler
+  pca:
+    enabled: true
+    variance_threshold: 0.95
+    max_components: 100
+
+training:
+  cv_folds: 5
+  n_jobs: -1
+  verbose: 2
+
+models:
+  random_forest:
+    param_grid:
+      n_estimators: [100, 300, 500]
+      max_depth: [10, 20, 30, null]
+      min_samples_split: [2, 5, 10]
+      max_features: [sqrt, log2]
+  xgboost:
+    param_grid:
+      n_estimators: [100, 300]
+      max_depth: [3, 5, 7]
+      learning_rate: [0.01, 0.1, 0.3]
+      subsample: [0.8, 1.0]
+      colsample_bytree: [0.8, 1.0]
+  svm:
+    param_grid:
+      kernel: [rbf, linear]
+      C: [0.1, 1, 10, 100]
+      gamma: [scale, auto]
+
+paths:
+  models_dir: satyaverify_ml/models/artifacts
+  output_dir: satyaverify_ml/output
+  plots_dir: satyaverify_ml/output/plots
